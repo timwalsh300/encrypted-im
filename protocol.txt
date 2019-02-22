@@ -1,0 +1,19 @@
+In this protocol, each transmitted message consists
+of the following, concatenated together...
+
+16-byte random IV || 64-byte ciphertext || 20-byte HMAC tag
+
+The ciphertext is computed with AES in CBC-mode using the
+SHA256 hash of the agreed upon [confkey]. Decryption
+yields a UTF-8 encoded message string, padded to exactly
+64 bytes in a manner similar to PKCS#7, but messages are
+limited to 63 bytes long so that every message has at least
+one byte of padding on the end. Messages are broken up
+into 63-byte chunks and encrypted/authenticated separately
+to achieve this. This fixed-length scheme ensures that the
+recipient knows when they have read the entire message chunk
+from the socket.
+
+The HMAC is computed over the random IV and the ciphertext
+concatenated together, using SHA1 as the underlying hash
+algorithm and the SHA256 hash of the agreed upon [authkey].
